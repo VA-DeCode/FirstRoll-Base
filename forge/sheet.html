@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Лист персонажа · Кузница героев</title>
+<meta name="description" content="Лист персонажа D&D 5e: просмотр с телефона, печать A4, PDF и код персонажа.">
+<meta name="theme-color" content="#EFE5CF">
+<link rel="icon" href="../shared/brand/forge-mark-light.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@600;700&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;600;700;800&display=swap">
+<script>try{var t=localStorage.getItem('kh-theme');t=t&&JSON.parse(t);if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/site.css">
+<link rel="stylesheet" href="../shared/tips.css">
+<link rel="stylesheet" href="../shared/sheet.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<link rel="stylesheet" href="assets/css/sheet.css">
+</head>
+<body data-section="forge" data-page="sheet" data-root="../">
+<div class="app-top no-print"><header id="site-head"></header></div>
+<div class="sheet-bar no-print"><div class="in">
+  <div class="segmented" role="radiogroup" aria-label="Вид листа"><button type="button" role="radio" data-view="mobile">Экран</button><button type="button" role="radio" data-view="a4">A4</button></div>
+  <button class="btn" data-do="edit" type="button"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M10.5 2.5 13.5 5.5 5.5 13.5H2.5V10.5z"/></svg>Редактировать</button>
+  <button class="btn primary" data-do="pdf-a4" type="button"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M2.5 13.5h11"/></svg>Скачать PDF</button>
+  <button class="btn" data-do="pdf-phone" type="button"><svg width="14" height="16" viewBox="0 0 14 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="1" width="10" height="14" rx="2"/><path d="M6 12.5h2"/></svg>PDF для телефона</button>
+  <button class="btn" data-do="print" type="button"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6V2h8v4M4 12H2V6h12v6h-2M4 9.5h8V14H4z"/></svg>Печать</button>
+  <button class="btn" data-do="code" type="button"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5.5 4 1.5 8l4 4M10.5 4l4 4-4 4"/></svg>Код персонажа</button>
+</div></div>
+<div class="draft-note no-print" id="draft-note"></div>
+<main class="sheet-mobile" id="mobile"></main>
+<div class="a4-wrap" id="a4" hidden></div>
+
+<footer id="site-foot" class="no-print"></footer>
+
+<script src="data/config.js"></script>
+<script src="data/common.js"></script>
+<script src="data/equipment.js"></script>
+<script src="data/spells.js"></script>
+<script src="data/races.js"></script>
+<script src="data/options.js"></script>
+<script src="data/feats.js"></script>
+<script src="data/backgrounds.js"></script>
+<script src="data/classes.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/rules.js"></script>
+<script src="../shared/icons.js"></script>
+<script src="../codex/load.js"></script>
+<script src="../shared/codex.js"></script>
+<script src="../shared/tips.js"></script>
+<script src="../shared/site.js"></script>
+<script src="assets/js/sheetdata.js"></script>
+<script src="../shared/sheet.js"></script>
+<script src="assets/js/tips.js"></script>
+<script src="assets/js/sheet.js"></script>
+<script src="assets/js/forge-site.js"></script>
+</body>
+</html>

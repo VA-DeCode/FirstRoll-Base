@@ -1,0 +1,110 @@
+/* FirstRoll — дизайн-токены v2 (копия docs/design/FirstRoll общий макет/tokens.css — источник правды; менять там и здесь вместе).
+   Подключают все части: хаб, Кодекс, Первые шаги, Кузница, Стол, «Мой персонаж».
+   Тема по умолчанию — светлая; тёмная — только по кнопке темы (data-theme="dark", ключ kh-theme). Системная настройка не учитывается.
+   .fr-dark — тёмные токены для слоя, который всегда тёмный (экран «Подключение» Стола). */
+:root{
+  /* цвет — v1 */
+  --bg:#EFE5CF; --surface:#F7F0DF; --fg:#2B1F15; --muted:#6D5A45; --rule:#D5C29F;
+  --accent:#8E1F1F; --gold:#8F6A22; --soft:#E6D6B2; --on-accent:#F8EEDA;
+  --ok:#3E6A36; --ok-soft:#DCE3C4; --danger:#8E1F1F; --danger-soft:#EED3C4;
+  --scrim:rgba(43,31,21,.42); --sheet-paper:#F7F0DF;
+  /* цвет — v2: текстовые варианты для мелкого кегля (AA 4.5:1 на --bg, --surface, --soft) */
+  --gold-text:#73551A;      /* метки разделов, бейджи источника, «◆ Новое» — мелкий золотой текст */
+  --accent-text:#8E1F1F;    /* киноварь мелким текстом на --soft / --danger-soft */
+  /* цвет — v2: смысловые */
+  --warn:#7E520E; --warn-soft:#F0DDB4;              /* предупреждение: «не всё выбрано», «⚠ отравлена» */
+  --magic:var(--gold); --magic-soft:#EADBB4;        /* магическое, «новое на этом уровне» */
+  --dm:var(--accent); --dm-soft:var(--danger-soft); /* видно только мастеру (+ значок замка, всегда) */
+  --turn:var(--accent); --on-turn:var(--on-accent); /* «Твой ход»: заливка */
+  --next:var(--gold);                               /* «Следующий — ты»: золотая рамка 2 px */
+  --down-opacity:.5;                                /* повержен: бледно + зачёркнуто */
+  --lock:var(--muted);                              /* заблокировано 🔒: пунктир --lock */
+  --new:var(--gold); --new-soft:var(--magic-soft);  /* «◆ Новое» */
+  --claude:#3D5675; --claude-soft:#DDE1DC;          /* черновик Claude ✦ */
+  --suspect:var(--accent); --suspect-soft:var(--danger-soft); /* подозрительное изменение игрока */
+  --hp-high:var(--ok); --hp-mid:var(--warn); --hp-low:var(--danger); /* полоса хитов: >50 % · 25–50 % · <25 % */
+  --qr-paper:#FFFFFF; --qr-ink:#000000;
+  /* шрифты */
+  --f-display:"Cormorant SC","Palatino Linotype","Book Antiqua",Georgia,serif;
+  --f-body:"Alegreya",Georgia,"Times New Roman",serif;
+  --f-ui:"Alegreya Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  /* кегли */
+  --fs-2xs:11px; --fs-xs:12.5px; --fs-sm:14px; --fs-ui:16px; --fs-body:18px;
+  --fs-h4:20px; --fs-h3:24px; --fs-h2:30px; --fs-h1:46px;
+  --fs-num:28px; --fs-num-lg:40px; --fs-num-xl:56px;
+  --fs-tip:15.5px;          /* v2: текст подсказки */
+  --fs-display-xl:64px;     /* v2: H1 хаба на десктопе */
+  --fs-screen:160px;        /* v2: код стола на экране подключения (1920) */
+  --lh-tight:1.1; --lh-ui:1.35; --lh-body:1.6;
+  --tracking-caps:.12em;
+  /* отступы (шаг 4) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-7:32px; --s-8:48px; --s-9:64px;
+  /* радиусы */
+  --r-xs:4px; --r-sm:6px; --r-md:10px; --r-lg:14px; --r-sheet:18px; --r-pill:999px;
+  /* линии и тени */
+  --line:1px solid var(--rule); --line-gold:1px solid var(--gold);
+  --line-lock:1px dashed var(--lock);  /* v2 */
+  --shadow-card:0 1px 0 rgba(43,31,21,.05),0 2px 6px rgba(43,31,21,.06);
+  --shadow-pop:0 2px 4px rgba(43,31,21,.08),0 14px 36px rgba(43,31,21,.18);
+  --focus-ring:0 0 0 2px var(--bg),0 0 0 4px var(--gold);
+  --gold-bar:linear-gradient(90deg,transparent,var(--gold) 18%,var(--gold) 82%,transparent); /* v2: полоска 3 px над подсказкой */
+  /* движение */
+  --dur-fast:120ms; --dur:200ms; --dur-slow:320ms; --ease:cubic-bezier(.2,.7,.2,1);
+  --tooltip-delay:300ms; --longpress:450ms;
+  --toast-life:4s; --confirm-window:4s; /* v2 */
+  /* размеры */
+  --hit:44px; --header-h:60px; --tooltip-w:344px; --page-max:1280px; --live-sheet-w:320px;
+  --btn-h:44px; --btn-h-lg:48px; --chip-h:40px; --chip-h-sm:26px; /* v2 */
+  --article-max:42rem;      /* v2: 66–72 знака в строке статьи */
+  --frb-h:44px;             /* v2: полоса Стола над шапкой */
+  --rollbar-h:112px;        /* v2: строка бросков Ширмы с результатом */
+  --dm-side-w:360px;        /* v2: правая колонка Ширмы (предложения · изменения · журнал) */
+  /* брейкпоинты (для справки; в @media пишутся числами): 360 · 390 · 768 · 1024 · 1280 · 1440 · 1920 */
+  color-scheme:light;
+}
+:root[data-theme="dark"],.fr-dark{
+  --bg:#15100C; --surface:#201812; --fg:#ECE0C6; --muted:#A8957A; --rule:#3B2E22;
+  --accent:#D0614F; --gold:#D8AD57; --soft:#2C2118; --on-accent:#1A120C;
+  --ok:#93BD7F; --ok-soft:#1F2A19; --danger:#D0614F; --danger-soft:#3A1C16;
+  --scrim:rgba(0,0,0,.6); --sheet-paper:#201812;
+  --gold-text:#D8AD57; --accent-text:#E27B69;
+  --warn:#E2A955; --warn-soft:#33250F; --magic-soft:#2E2412;
+  --claude:#93AFCF; --claude-soft:#1B222B;
+  --shadow-card:0 1px 0 rgba(0,0,0,.3); --shadow-pop:0 2px 4px rgba(0,0,0,.4),0 16px 40px rgba(0,0,0,.55);
+  color-scheme:dark}
+@media print{:root,:root[data-theme="dark"]{
+  --bg:#fff; --surface:#fff; --fg:#000; --muted:#444; --rule:#9a9a9a;
+  --accent:#000; --gold:#555; --soft:#f1f1f1; --on-accent:#fff;
+  --ok:#000; --danger:#000; --shadow-card:none; --shadow-pop:none;
+  --gold-text:#333; --accent-text:#000; --warn:#000; --warn-soft:#f1f1f1; --magic-soft:#f1f1f1;
+  --claude:#000; --claude-soft:#f1f1f1; --danger-soft:#f1f1f1; --ok-soft:#f1f1f1;
+  color-scheme:light}}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:var(--fs-body);line-height:var(--lh-body);transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
+a{color:var(--accent)} a:hover{color:var(--gold)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+@media print{
+  @page{size:A4 portrait;margin:0}
+  html,body{background:#fff!important}
+  .no-print,.sheet-mobile,.app-header,.toast,.modal,.frb,.fb-float,.cx-header,.rollbar{display:none!important}
+  .a4-wrap{display:block!important;zoom:1!important;padding:0!important;gap:0!important}
+  .sheet-page{display:flex!important;box-shadow:none!important;border:0!important;border-radius:0!important;margin:0!important;break-after:page;page-break-after:always}
+  .sheet-page:last-child{break-after:auto;page-break-after:auto}
+  .ref{text-decoration:none!important;color:inherit!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+@keyframes kh-sheet-up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes kh-fade{from{opacity:0}to{opacity:1}}
+@keyframes kh-pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes kh-gold-flash{0%{background:transparent}20%{background:color-mix(in oklab,var(--gold) 28%,transparent)}100%{background:transparent}}
+@keyframes kh-dice{0%{transform:rotate(0) scale(1)}40%{transform:rotate(200deg) scale(1.12)}100%{transform:rotate(360deg) scale(1)}}
+/* v2 */
+@keyframes fr-turn-in{0%{opacity:0;transform:scale(.96)}60%{opacity:1;transform:scale(1.015)}100%{transform:none}}
+@keyframes fr-toast-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes fr-ring{0%{box-shadow:0 0 0 0 color-mix(in oklab,var(--gold) 60%,transparent)}100%{box-shadow:0 0 0 8px transparent}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:1ms!important;transition-duration:1ms!important}}

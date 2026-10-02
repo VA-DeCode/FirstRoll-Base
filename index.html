@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FirstRoll — Первый бросок</title>
+<meta name="description" content="FirstRoll: всё для наших партий D&D 5e — первые шаги для новичков, конструктор персонажа, Кодекс знаний и живой лист за столом.">
+<meta name="theme-color" content="#EFE5CF">
+<link rel="icon" href="shared/brand/fr-mark-light.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="shared/brand/app-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@600;700&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<script>try{var t=localStorage.getItem('kh-theme');t=t&&JSON.parse(t);if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/site.css">
+<style>
+/* Хаб first-roll.ru — макет Claude Design «Хаб», вариант b */
+.hub{flex:1;width:100%;max-width:calc(var(--content) + 2 * var(--pad-x));margin:0 auto;padding:72px var(--pad-x) 0;display:flex;flex-direction:column;gap:48px}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+.hero h1{font-size:64px}
+.hero .lead{max-width:620px;font-size:21px}
+.hero .orn{width:280px;margin-top:4px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.tile{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;padding:32px 20px;background:var(--surface);border:1px solid var(--rule);border-radius:var(--r-lg);box-shadow:var(--shadow-card);min-width:0;color:var(--fg);transition:border-color var(--dur) var(--ease)}
+.tile:hover{border-color:var(--gold);color:var(--fg)}
+.tile>img,.tile>svg{width:80px;height:80px;flex:none;display:block}
+.tile-t{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.tile-p{font:700 11px/1.3 var(--f-ui);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--gold)}
+.tile-t b{font:700 26px/1.1 var(--f-display)}
+.tile-t span{font-size:16px;line-height:1.45;color:var(--muted);text-wrap:pretty}
+.st{display:flex;align-items:center;gap:8px;margin-top:6px;padding:6px 12px;border-radius:var(--r-pill);border:1px solid var(--rule);font:700 14px/1.2 var(--f-ui);color:var(--muted)}
+.st i{width:8px;height:8px;border-radius:var(--r-pill);flex:none;border:1.5px solid var(--muted)}
+.st.on{border-color:var(--accent);background:var(--danger-soft);color:var(--accent)}
+.st.on i{background:var(--accent);border-color:var(--accent)}
+.extra{display:grid;grid-template-columns:1fr;gap:20px;align-items:stretch}
+.extra.has-char{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}
+.me{padding:28px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.me-h{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.me-h span{font:400 14px/1.3 var(--f-ui);color:var(--muted)}
+.me-n b{display:block;font:700 30px/1.1 var(--f-display)}
+.me-n span{font:500 16px/1.4 var(--f-ui);color:var(--muted)}
+.me-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.me-stats div{padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.me-stats b{font:700 28px/1.1 var(--f-ui);font-variant-numeric:tabular-nums}
+.me-stats span{font:400 12.5px/1.25 var(--f-ui);color:var(--muted)}
+.me-c{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font:400 14px/1.3 var(--f-ui);color:var(--muted)}
+.me-c b{display:flex;align-items:center;height:32px;padding:0 12px;border-radius:var(--r-pill);background:var(--danger-soft);color:var(--accent);font-weight:700}
+.me-a{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.extra .install{padding:28px}
+.extra.has-char .install{flex-direction:column;align-items:flex-start}
+.extra .install img{width:56px;height:56px}
+.extra .install b{font-size:24px}
+.hub+.site-foot{padding-top:64px}
+@media (max-width:1023px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tiles.is-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:899px){
+  .hub{padding-top:40px;gap:32px}
+  .hero h1{font-size:46px}.hero .lead{font-size:18px}.hero .orn{width:200px}
+  .tiles,.tiles.is-3{grid-template-columns:1fr;gap:12px}
+  .tile{padding:24px 20px;gap:12px}.tile>img,.tile>svg{width:56px;height:56px}
+  .tiles.stol-first .tile.stol{order:-1}
+  .extra.has-char{grid-template-columns:1fr}
+  .me,.extra .install{padding:20px}
+  .hub+.site-foot{padding-top:40px}
+}
+</style>
+</head>
+<body data-section="hub" data-root="./">
+<header id="site-head"></header>
+<main class="hub">
+  <section class="hero">
+    <p class="eyebrow">D&amp;D 5e · для наших партий</p>
+    <h1 class="h-display">Первый бросок</h1>
+    <p class="lead">Всё для нашей игры в одном месте: как играть, свой персонаж<span data-full>, правила под рукой и живой лист за столом</span><span data-public hidden> и правила под рукой</span>.</p>
+    <div class="orn" aria-hidden="true"><span>◆</span></div>
+  </section>
+
+  <nav class="tiles" id="tiles" aria-label="Разделы">
+    <a class="tile" data-part="start">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="var(--accent)"/><polygon points="32,7 10,45 54,45" fill="none" stroke="var(--bg)" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      <div class="tile-t"><div class="tile-p">/start/</div><b>Первые шаги</b><span>Учебник для тех, кто ни разу не играл. Семь коротких глав по порядку.</span></div>
+    </a>
+    <a class="tile" data-part="forge">
+      <img data-brand="forge-mark" alt="">
+      <div class="tile-t"><div class="tile-p">/forge/</div><b>Кузница героев</b><span>Собери персонажа шаг за шагом: раса, класс, характеристики, снаряжение.</span></div>
+    </a>
+    <a class="tile" data-part="codex">
+      <img data-brand="codex-mark" alt="">
+      <div class="tile-t"><div class="tile-p">/codex/</div><b>Кодекс знаний</b><span>Правила, состояния, заклинания, снаряжение. Каждый термин — ссылка.</span></div>
+    </a>
+    <a class="tile stol" data-part="stol">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="var(--accent)"/><polygon points="32,7 10,45 54,45" fill="none" stroke="var(--bg)" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      <div class="tile-t"><div class="tile-p">stol.first-roll.ru</div><b>К столу</b><span>Живой лист на телефоне во время игры: хиты, ячейки, состояния.</span>
+        <div class="st" id="stol-st"><i></i><span>Проверяю Стол…</span></div></div>
+    </a>
+  </nav>
+
+  <section class="extra" id="extra">
+    <div class="card me" id="me" hidden></div>
+    <div class="install">
+      <img data-brand="fr-mark" alt="">
+      <div><b>Установить как приложение</b><span>Значок на главном экране. Кодекс и последний снимок листа открываются и без сети.</span></div>
+      <button class="btn" type="button" data-install>Установить</button>
+    </div>
+  </section>
+</main>
+<footer id="site-foot"></footer>
+<script src="shared/icons.js"></script>
+<script src="shared/site.js"></script>
+<script>
+(function () {
+  const S = FR.site, esc = S.esc;
+  S.init();
+  // Публичная версия: без Стола и «Моего персонажа»
+  if (S.public) {
+    document.querySelectorAll('.tile.stol, [data-full]').forEach((el) => el.remove());
+    document.getElementById('tiles').classList.add('is-3');
+    document.querySelectorAll('[data-public]').forEach((el) => { el.hidden = false; });
+  }
+  document.querySelectorAll('[data-part]').forEach((a) => { a.href = S.href(a.dataset.part); });
+  document.querySelectorAll('img[data-brand]').forEach((i) => { i.src = S.brandSrc(i.dataset.brand); });
+
+  // Статус Стола; на телефоне открытый Стол — первой плиткой
+  const st = document.getElementById('stol-st');
+  document.addEventListener('fr-stol', (e) => {
+    const s = e.detail || {}; if (!st.isConnected) return;
+    st.classList.toggle('on', !!s.open);
+    st.lastChild.textContent = s.open ? 'Стол открыт' + (s.campaign ? ' · ' + s.campaign : '') : 'Стол сейчас выключен';
+    document.getElementById('tiles').classList.toggle('stol-first', !!s.open);
+  });
+
+  // «Мой персонаж» — снимок листа после сессии (появится вместе с /me/<ключ>; пока только если снимок есть в браузере)
+  let me = null; try { me = JSON.parse(localStorage.getItem('fr-me') || 'null'); } catch (e) {}
+  if (me && me.name && !S.public) {
+    const box = document.getElementById('me');
+    box.hidden = false; document.getElementById('extra').classList.add('has-char');
+    box.innerHTML = `<div class="me-h"><p class="eyebrow">Мой персонаж</p>${me.date ? `<span>снимок после сессии ${esc(me.date)}</span>` : ''}</div>
+      <div class="me-n"><b>${esc(me.name)}</b><span>${esc(me.sub || '')}</span></div>
+      ${me.stats ? `<div class="me-stats">${me.stats.slice(0, 4).map((s) => `<div><b>${esc(s.v)}</b><span>${esc(s.k)}</span></div>`).join('')}</div>` : ''}
+      ${me.conds && me.conds.length ? `<div class="me-c">${me.conds.map((c) => `<b>${esc(c)}</b>`).join('')}${me.condNote ? `<span>${esc(me.condNote)}</span>` : ''}</div>` : ''}
+      <div class="me-a"><a class="btn btn-accent" href="${esc(me.href || '#')}">Открыть лист</a><button class="btn btn-ghost" type="button" id="forget">Забыть на этом телефоне</button></div>`;
+    document.getElementById('forget').onclick = () => { try { localStorage.removeItem('fr-me'); } catch (e) {} location.reload(); };
+  }
+})();
+</script>
+</body>
+</html>

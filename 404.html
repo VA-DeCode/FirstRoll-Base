@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Страницы нет · FirstRoll</title>
+<script>
+/* GitHub Pages отдаёт этот файл на любой несуществующий адрес. Адреса Кодекса (/codex/cond/poisoned#half)
+   передаём приложению Кодекса: /codex/?p=/cond/poisoned#half — оно само вернёт красивый адрес в строку. */
+(function () {
+  var p = location.pathname, i = p.indexOf('/codex/');
+  if (i >= 0 && !/\.[a-z0-9]+$/i.test(p)) location.replace(p.slice(0, i + 7) + '?p=' + encodeURIComponent(p.slice(i + 6)) + location.hash);
+})();
+</script>
+<script>try{var t=localStorage.getItem('kh-theme');t=t&&JSON.parse(t);if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="icon" href="/shared/brand/fr-mark-light.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@600;700&family=Alegreya:ital,wght@0,400;0,500;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="/shared/tokens.css">
+<link rel="stylesheet" href="/shared/site.css">
+<style>
+.nf{flex:1;width:100%;max-width:760px;margin:0 auto;padding:88px var(--pad-x) 48px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+.nf h1{font-size:46px}.nf .lead{max-width:480px;font-size:19px}
+.nf code{font:.85em ui-monospace,Menlo,monospace;padding:1px 6px;border-radius:4px;background:var(--soft)}
+@media (max-width:899px){.nf{padding-top:48px}.nf h1{font-size:38px}.nf .lead{font-size:17px}}
+</style>
+</head>
+<body data-section="hub" data-root="/">
+<header id="site-head"></header>
+<main class="nf">
+  <div class="orn3" aria-hidden="true" style="width:200px"><span>◆◆◆</span></div>
+  <p class="eyebrow">Ошибка 404</p>
+  <h1 class="h-display">Такой страницы нет</h1>
+  <p class="lead">По адресу <code id="path"></code> ничего не нашлось. Может, в ссылке опечатка или страница переехала.</p>
+  <a class="btn" href="/">На главную</a>
+</main>
+<footer id="site-foot"></footer>
+<script src="/shared/site.js"></script>
+<script>document.getElementById('path').textContent = location.pathname; FR.site.init();</script>
+</body>
+</html>

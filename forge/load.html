@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Загрузить по коду · Кузница героев</title>
+<meta name="description" content="Вставь код персонажа, чтобы открыть его лист или продолжить редактирование.">
+<meta name="theme-color" content="#EFE5CF">
+<link rel="icon" href="../shared/brand/forge-mark-light.svg" type="image/svg+xml">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@600;700&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=Alegreya+Sans:wght@400;500;600;700;800&display=swap">
+<script>try{var t=localStorage.getItem('kh-theme');t=t&&JSON.parse(t);if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/site.css">
+<link rel="stylesheet" href="../shared/tips.css">
+<link rel="stylesheet" href="../shared/sheet.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<style>
+  .load{max-width:720px;margin:0 auto;padding:36px 16px 80px;display:flex;flex-direction:column;gap:36px}
+  .load textarea{min-height:130px;padding:14px 16px;border-radius:10px;font:14.5px/1.5 var(--f-mono);word-break:break-all;margin-top:6px}
+  .status{min-height:24px;margin-top:10px;font-family:var(--f-ui)}
+  .msg{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;font:15px/1.45 var(--f-ui)}
+  .msg.err{background:var(--danger-soft);border:1px solid var(--danger)}
+  .msg.err::before,.msg.warn::before{content:"!";flex:none;width:22px;height:22px;border-radius:50%;background:var(--danger);color:var(--bg);display:grid;place-items:center;font-weight:700;font-size:13px}
+  .msg.warn{background:var(--warn-soft);border:1px solid var(--warn)}
+  .msg.warn::before{background:var(--warn)}
+  .msg.ok{align-items:center;gap:14px;background:var(--ok-soft);border:1px solid var(--ok)}
+  .msg.ok.stol{background:var(--surface);border-color:var(--gold)}
+  .msg.ok .k{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ok)}
+  .msg.ok.stol .k{color:var(--gold-text)}
+  .msg.ok b{display:block;font-family:var(--f-display);font-size:22px;line-height:1.05}
+  .msg.ok small{font-size:14.5px;color:var(--muted)}
+  .status .fb-lock{margin-top:10px}
+  .recent .tag{margin-left:8px;font:700 11px/1 var(--f-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--gold-text);vertical-align:2px}
+  .recent .tag.stol{color:var(--accent-text)}
+  .load .acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+  .load .acts .sp{flex:1}
+  .recent{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;border-top:1px solid var(--rule);font-family:var(--f-ui)}
+  .recent li{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--rule)}
+  .recent a.who{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--fg)}
+  .recent a.who b{font-family:var(--f-display);font-size:21px;line-height:1.05}
+  .recent a.who span{font-size:14.5px;color:var(--muted);line-height:1.35}
+  .recent a.who:hover b{color:var(--accent)}
+  .recent .dt{flex:none;font-size:13.5px;color:var(--muted);white-space:nowrap}
+  .recent .ed{flex:none}
+  .recent .rm{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:none;color:var(--muted);font:400 20px/1 var(--f-ui);cursor:pointer}
+  .recent .rm:hover{color:var(--accent)}
+  @media (max-width:520px){.recent .dt,.recent .ed{display:none}}
+</style>
+</head>
+<body data-section="forge" data-page="load" data-root="../">
+<div class="app-top"><header id="site-head"></header></div>
+<main class="load">
+  <section>
+    <p class="eyebrow">Кузница героев</p>
+    <h1>Загрузить по коду</h1>
+    <div class="orn" aria-hidden="true"><span>◆</span></div>
+    <p class="lead" style="margin-bottom:22px">Код персонажа — длинная строка, которую выдаёт конструктор или лист (начинается с «1.»). Вставь её сюда целиком. Подойдёт и ссылка на лист.</p>
+    <label class="field" for="code"><span>Вставь код персонажа</span></label>
+    <textarea class="input" id="code" spellcheck="false" autocomplete="off" aria-describedby="status" placeholder="1.jZJNb9swDIb_i…"></textarea>
+    <div class="status" id="status" aria-live="polite"></div>
+    <div class="acts">
+      <button class="btn" id="paste" type="button"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="3" width="9" height="11.5" rx="1.5"/><path d="M6 3V1.8h4V3"/></svg>Вставить из буфера</button>
+      <span class="sp"></span>
+      <button class="btn outline" id="edit" type="button">Редактировать в конструкторе</button>
+      <button class="btn primary" id="open" type="button">Открыть лист →</button>
+    </div>
+  </section>
+  <section class="stack-sm">
+    <div class="sec-head"><h2 style="font-size:26px">Недавние персонажи</h2></div>
+    <p class="note">Хранятся только в этом браузере. На другом устройстве открой по коду или ссылке.</p>
+    <ul class="recent" id="recent"></ul>
+  </section>
+</main>
+<footer id="site-foot"></footer>
+
+<script src="data/config.js"></script>
+<script src="data/common.js"></script>
+<script src="data/equipment.js"></script>
+<script src="data/spells.js"></script>
+<script src="data/races.js"></script>
+<script src="data/options.js"></script>
+<script src="data/feats.js"></script>
+<script src="data/backgrounds.js"></script>
+<script src="data/classes.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="../shared/icons.js"></script>
+<script src="../shared/site.js"></script>
+<script src="assets/js/forge-site.js"></script>
+<script>
+(function(){
+  const U = DND.util, I = DND.idx, esc = U.esc, $ = (id) => document.getElementById(id);
+  const clean = (s) => String(s || '').trim().replace(/^.*[#&?]c=/, '').replace(/&.*$/, '').replace(/\s+/g, '');
+  let valid = null; const fromStol = /(?:&|#)stol=1/.test(location.hash);
+  const setBtns = () => { ['open', 'edit'].forEach((id) => { $(id).disabled = !valid; }); };
+  const initial = (n) => esc(((n || '?').trim().charAt(0) || '?').toUpperCase());
+  function describe(c) {
+    const r = I.races[c.race], s = r && (r.subraces || []).find((x) => x.id === c.subrace), cl = I.classes[c.cls], sb = I.subclasses[c.subclass];
+    return [s ? s.name : r && r.name, cl && (cl.name + ' ' + c.level), sb && sb.name].filter(Boolean).join(' · ') || 'Раса и класс не выбраны';
+  }
+  async function check(quiet) {
+    const code = clean($('code').value);
+    $('code').removeAttribute('aria-invalid'); $('code').classList.remove('is-error');
+    if (!code) { valid = null; $('status').innerHTML = quiet ? '' : '<div class="msg err" role="alert"><span>Вставь код.</span></div>'; setBtns(); return null; }
+    try {
+      const c = await DND.codec.decode(code); valid = code;
+      const stol = fromStol || U.ls.get('kh-recent', []).some((x) => x.stol && x.code === code);
+      $('status').innerHTML = `<div class="msg ok${stol ? ' stol' : ''}"><div class="portrait xs" aria-hidden="true"><div>${initial(c.name)}</div></div><div style="min-width:0"><span class="k">✓ ${stol ? 'Код героя со Стола <span class="badge-source">за столом</span>' : 'Код читается'}</span><b>${esc(c.name || 'Без имени')}</b><small>${esc(describe(c))}</small></div></div>` +
+        (stol ? `<div class="fb-lock" role="note"><span class="lk">${window.FR && FR.icons ? FR.icons.svg('lock') : ''}</span><span><b>Это код героя со Стола.</b><span>Его хиты, предметы и опыт меняются за столом через мастера. Здесь откроется копия — правки не попадут в игру. Новый уровень и описание меняй через Стол: кнопка «Повысить уровень» на живом листе.</span></span></div>` : '');
+      setBtns(); return { code, c, stol };
+    } catch (e) {
+      valid = null; $('code').setAttribute('aria-invalid', 'true'); $('code').classList.add('is-error');
+      $('status').innerHTML = /другой версии/.test(e.message)
+        ? '<div class="msg warn" role="alert"><span><b>Код из другой версии Кузницы.</b> Этот код сделан конструктором другой версии и здесь не читается. Попроси владельца открыть героя в Кузнице заново и прислать свежий код.</span></div>'
+        : `<div class="msg err" role="alert"><span><b>Код обрывается или повреждён.</b> Скорее всего, скопировалась не вся строка. Скопируй его заново целиком — без пробелов и переносов в середине — или попроси прислать ссылку на лист. <small class="muted">(${esc(e.message)})</small></span></div>`;
+      setBtns(); return null;
+    }
+  }
+  let t; $('code').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => check(true), 250); });
+  $('open').onclick = async () => { const r = await check(); if (r) { DND.state.remember(r.c, r.code, r.stol); location.href = 'sheet.html#c=' + r.code + (r.stol ? '&stol=1' : ''); } };
+  $('edit').onclick = async () => { const r = await check(); if (r) { DND.state.remember(r.c, r.code, r.stol); location.href = 'index.html#edit=' + r.code; } };
+  $('paste').onclick = async () => { try { $('code').value = await navigator.clipboard.readText(); check(); } catch (e) { $('status').innerHTML = '<div class="msg err" role="alert"><span>Браузер не дал доступ к буферу — вставь вручную (долгое нажатие → Вставить).</span></div>'; } };
+  function renderRecent() {
+    const list = U.ls.get('kh-recent', []), d = DND.state.loadDraft();
+    const draft = d && (d.name || d.race || d.cls) ? `<li><div class="portrait xs" aria-hidden="true"><div>${initial(d.name)}</div></div><a class="who" href="index.html"><b>${esc(d.name || 'Без имени')}<span class="tag">черновик</span></b><span>${esc(describe(d))}</span></a><span class="dt">в конструкторе</span><a class="btn sm ed" href="index.html">Продолжить</a><span class="rm" aria-hidden="true"></span></li>` : '';
+    $('recent').innerHTML = list.length || draft ? draft + list.map((x, i) => `<li><div class="portrait xs" aria-hidden="true"><div>${initial(x.name)}</div></div><a class="who" href="sheet.html#c=${x.code}${x.stol ? '&stol=1' : ''}"><b>${esc(x.name)}${x.stol ? '<span class="tag stol">● за столом</span>' : ''}</b><span>${esc(x.desc || 'Раса и класс не выбраны')}</span></a><span class="dt">${new Date(x.t).toLocaleDateString('ru-RU')}</span><a class="btn sm ed" href="index.html#edit=${x.code}">Править</a><button type="button" class="rm" data-i="${i}" aria-label="Убрать ${esc(x.name)} из списка">×</button></li>`).join('')
+      : '<li style="display:block;border:0;padding:0"><div class="fr-empty"><b>Черновика нет</b><span>В этом браузере ещё не собирали героев. Начни с нуля или вставь код, который прислали.</span><a class="btn primary" href="index.html">Собрать героя</a></div></li>';
+  }
+  $('recent').addEventListener('click', (e) => { const b = e.target.closest('.rm'); if (!b) return; const list = U.ls.get('kh-recent', []); list.splice(+b.dataset.i, 1); U.ls.set('kh-recent', list); renderRecent(); });
+  renderRecent();
+  if (/[#&]c=/.test(location.hash)) { $('code').value = location.hash; check(); } else setBtns();
+})();
+</script>
+</body>
+</html>
