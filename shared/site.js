@@ -14,7 +14,9 @@
   const PUBLIC = true;
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   S.esc = esc; S.file = file; S.onStol = onStol; S.public = PUBLIC;
-  S.STOL = 'https://stol.first-roll.ru/';
+  /* Постоянного адреса у Стола нет (временный Cloudflare tunnel, адрес меняется при каждом запуске): «К столу» есть только на страницах,
+     открытых через сам Стол; с диска и на публичном сайте этой ссылки нет */
+  const noStol = PUBLIC || !onStol;
 
   /* ── адреса частей сайта ── */
   S.root = () => B.dataset.root || './';
@@ -24,7 +26,7 @@
     if (part === 'start') return r + 'start/' + (file ? 'index.html' : '');
     if (part === 'codex') return r + 'codex/' + (file ? 'index.html' : '');
     if (part === 'forge') return r + 'forge/' + (file ? 'index.html' : '');
-    if (part === 'stol') return onStol ? '/' : S.STOL;
+    if (part === 'stol') return '/';
     return r;
   };
   S.brandSrc = (name) => S.root() + 'shared/brand/' + name + '-' + S.theme() + '.svg';
@@ -55,7 +57,7 @@
     const el = D.getElementById('site-head'); if (!el) return;
     const sec = B.dataset.section || 'hub', sub = SUB[sec] || SUB.hub;
     el.className = 'site-head';
-    const nav = [['start', 'Первые шаги'], ['codex', 'Кодекс знаний'], ['forge', 'Кузница героев'], ['stol', 'К столу']].filter(([k]) => !(PUBLIC && k === 'stol'));
+    const nav = [['start', 'Первые шаги'], ['codex', 'Кодекс знаний'], ['forge', 'Кузница героев'], ['stol', 'К столу']].filter(([k]) => !(noStol && k === 'stol'));
     const hub = sec === 'hub';
     el.innerHTML =
       `<a class="brand${sub[0] ? '' : ' is-solo'}" href="${esc(S.href('hub'))}" aria-label="FirstRoll — на главную"><img data-brand="${sub[1]}" src="${esc(S.brandSrc(sub[1]))}" alt="">` +
@@ -78,7 +80,7 @@
   S.menu = function () {
     const sec = B.dataset.section;
     const I = FR.icons;
-    const nav = [['start', 'Первые шаги', 'guide'], ['codex', 'Кодекс знаний', 'rule'], ['forge', 'Кузница героев', 'class'], ['stol', 'К столу', 'd20']].filter(([k]) => !(PUBLIC && k === 'stol'));
+    const nav = [['start', 'Первые шаги', 'guide'], ['codex', 'Кодекс знаний', 'rule'], ['forge', 'Кузница героев', 'class'], ['stol', 'К столу', 'd20']].filter(([k]) => !(noStol && k === 'stol'));
     const ov = D.createElement('div'); ov.className = 'menu-sheet';
     ov.innerHTML = `<div role="dialog" aria-label="Разделы"><span class="grab"></span>` +
       nav.map(([k, t, i]) => `<a href="${esc(S.href(k))}"${k === sec ? ' class="on"' : ''}>${I ? I.svg(i) : ''}${t}${k === 'stol' ? `<small class="ms-st${S.stol && S.stol.open ? ' on' : ''}">${S.stol && S.stol.open ? '● открыт' : 'закрыт'}</small>` : ''}</a>`).join('') + (S.menuExtra || '') +
@@ -108,15 +110,9 @@
 
   /* ── Стол: жив ли ── */
   S.stol = null;   // null — ещё проверяем; { open, campaign }
-  S.pingStol = function () {
-    if (onStol) { S.stol = { open: true, campaign: '' }; paint(); return Promise.resolve(S.stol); }
-    try { const c = JSON.parse(sessionStorage.getItem('fr-stol') || 'null'); if (c && Date.now() - c.t < 60000) { S.stol = c; paint(); return Promise.resolve(c); } } catch (e) {}
-    const ctl = 'AbortController' in window ? new AbortController() : null;
-    const timer = setTimeout(() => ctl && ctl.abort(), 4000);
-    return fetch(S.STOL + 'api/ping', { cache: 'no-store', signal: ctl && ctl.signal })
-      .then((r) => r.ok ? r.json() : Promise.reject())
-      .then((j) => ({ open: true, campaign: (j && j.campaign) || '' }), () => ({ open: false }))
-      .then((st) => { clearTimeout(timer); st.t = Date.now(); S.stol = st; try { sessionStorage.setItem('fr-stol', JSON.stringify(st)); } catch (e) {} paint(); return st; });
+  S.pingStol = function () {   // Стол «жив» только там, где страница открыта через него самого (постоянного адреса нет)
+    S.stol = onStol ? { open: true, campaign: '' } : { open: false };
+    return Promise.resolve(S.stol).then((st) => { paint(); return st; });   // после текущего скрипта: страницы подписываются на fr-stol после FR.site.init()
   };
   function paint() {
     D.querySelectorAll('[data-stol-dot]').forEach((d) => { d.classList.toggle('on', !!(S.stol && S.stol.open)); d.parentNode.classList.toggle('is-live', !!(S.stol && S.stol.open)); });
@@ -194,6 +190,6 @@
 
   S.init = function () {
     header(); footer(); offline(); sw();
-    if (!file && !PUBLIC) S.pingStol(); else { S.stol = { open: false }; paint(); }
+    S.pingStol();
   };
 })();

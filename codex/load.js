@@ -13,7 +13,11 @@
     'data/actions.js',
     'data/conditions.js',
     'data/damage.js',
-    'data/guide.js'
+    'data/guide.js',
+    // хоумбрю наших кампаний (ведёт tools/homebrew.js; скрытое vis:'dm' в публичную сборку не попадает)
+    'data/homebrew/bestiary.js',
+    'data/homebrew/items.js',
+    'data/homebrew/other.js'
   ];
   const FORGE = '../forge/data/';
   const FORGE_FILES = ['common', 'equipment', 'races', 'classes', 'backgrounds', 'feats', 'spells', 'options'];

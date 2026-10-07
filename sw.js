@@ -2,7 +2,7 @@
    Страницы — сначала сеть, без сети — сохранённая копия. Остальное (скрипты, стили, шрифты, статьи) — из кэша,
    с тихим обновлением в фоне. Любой адрес /codex/… отдаёт приложение Кодекса (оно само читает адрес).
    Меняя список ядра, увеличь VER. */
-const VER = 'fr-v3';
+const VER = 'fr-v4';
 const ROOT = new URL('./', self.location).pathname;
 const CORE = ['', 'index.html', 'start/', 'codex/', 'shared/tokens.css', 'shared/site.css', 'shared/tips.css', 'shared/site.js', 'shared/icons.js',
   'shared/codex.js', 'shared/tips.js', 'shared/sheet.css', 'shared/sheet.js', 'start/start.css', 'codex/app.js', 'codex/codex.css', 'codex/sections.js', 'codex/load.js', 'start/start.js', 'manifest.webmanifest',

@@ -6,6 +6,7 @@
   const FR = window.FR = window.FR || {};
   const R = (...ids) => ids.map((i) => i.includes(':') ? i : 'rule:' + i);
   const tag = (a, t) => (a.tags || []).includes(t);
+  const hb = (a) => /^hb:/.test(a.id);   // хоумбрю наших кампаний (codex/data/homebrew, tools/homebrew.js)
 
   FR.codexSections = [
     { key: 'start', icon: 'guide', title: 'Первые шаги', text: 'Как играть, если ни разу не пробовал', external: 'start', count: (C) => C.byKind('guide').length, unit: ['глава', 'главы', 'глав'] },
@@ -18,6 +19,7 @@
         { t: 'Персонаж', s: 'Персонаж', ids: R('ability-scores', 'modifier', 'generating-scores', 'proficiency', 'proficiencies', 'expertise', 'inspiration', 'experience', 'carrying-capacity') },
         { t: 'Приключения и мир', s: 'Приключения', ids: R('time', 'travel-pace', 'marching-order', 'travel-activities', 'difficult-terrain', 'climbing-swimming', 'jumping', 'falling', 'suffocating', 'vision-light', 'obscured', 'darkvision', 'blindsight', 'truesight', 'food-water', 'objects', 'social-interaction') },
         { t: 'Отдых и здоровье', s: 'Отдых', ids: R('hit-points', 'hit-dice', 'short-rest', 'long-rest') },
+        { t: 'Ловушки, болезни и опасности', s: 'Опасности', test: (a) => a.kind === 'hazard' && !hb(a) },
         { t: 'Другое', s: 'Другое', test: (a) => a.kind === 'rule' && !tag(a, 'бой') && !tag(a, 'магия') }
       ] },
 
@@ -72,19 +74,33 @@
       intro: 'Все заклинания из Кузницы героев. Фильтруй по кругу, школе и классу; как накладывать — в разделе «Магия».',
       groups: [{ t: 'Заклинания', s: 'Все', test: (a) => a.kind === 'spell' }] },
 
-    { key: 'equipment', icon: 'item', title: 'Снаряжение', text: 'Оружие, доспехи, снаряжение, предметы', view: 'list', search: 'Искать в снаряжении',
-      intro: 'Оружие, доспехи, снаряжение путешественника, инструменты и магические предметы кампании.',
+    /* Предметы: D&D (этот раздел) и хоумбрю (дочерний). Хоумбрю скрыто от игроков, пока мастер не откроет статью */
+    { key: 'equipment', icon: 'item', title: 'Предметы', text: 'Оружие, доспехи, снаряжение, магические предметы', view: 'list', search: 'Искать в предметах',
+      intro: 'Предметы мира D&D: оружие, доспехи, снаряжение путешественника, инструменты, яды и магические предметы. Свои предметы наших кампаний — в «Предметах хоумбрю».',
+      more: { key: 'items-hb', icon: 'item', title: 'Предметы хоумбрю', text: 'Свои предметы наших кампаний' },
       groups: [
-        { t: 'Оружие', s: 'Оружие', test: (a) => a.kind === 'item' && !a.rarity && tag(a, 'оружие') },
-        { t: 'Доспехи и щиты', s: 'Доспехи', test: (a) => a.kind === 'item' && !a.rarity && tag(a, 'доспехи') },
-        { t: 'Магические предметы', s: 'Магические', test: (a) => a.kind === 'item' && !!a.rarity },
-        { t: 'Снаряжение', s: 'Снаряжение', test: (a) => a.kind === 'item' },
+        { t: 'Оружие', s: 'Оружие', test: (a) => a.kind === 'item' && !hb(a) && !a.rarity && tag(a, 'оружие') },
+        { t: 'Доспехи и щиты', s: 'Доспехи', test: (a) => a.kind === 'item' && !hb(a) && !a.rarity && tag(a, 'доспехи') },
+        { t: 'Магические предметы', s: 'Магические', test: (a) => a.kind === 'item' && !hb(a) && !!a.rarity },
+        { t: 'Яды', s: 'Яды', test: (a) => a.kind === 'item' && !hb(a) && a.cat === 'poison' },
+        { t: 'Снаряжение', s: 'Снаряжение', test: (a) => a.kind === 'item' && !hb(a) },
         { t: 'Инструменты', s: 'Инструменты', test: (a) => a.kind === 'tool' }
       ] },
+    { key: 'items-hb', icon: 'item', title: 'Предметы хоумбрю', parent: 'equipment', hidden: true, view: 'list', hb: true, search: 'Искать в предметах хоумбрю',
+      intro: 'Свои предметы наших кампаний. Игроки видят только те, что мастер открыл.',
+      groups: [
+        { t: 'Магические предметы', s: 'Магические', test: (a) => a.kind === 'item' && hb(a) && !!(a.rarity || (a.mods && a.mods.length) || (a.effects && a.effects.length)) },
+        { t: 'Предметы', s: 'Прочие', test: (a) => a.kind === 'item' && hb(a) }
+      ] },
 
-    { key: 'bestiary', icon: 'mon', title: 'Бестиарий', text: 'Монстры SRD и NPC кампании', view: 'mon', dm: true, search: 'Имя монстра',
-      intro: 'Монстры SRD 5.1 со статблоками и NPC кампании. Сортируй по показателю опасности, чтобы собрать бой по силам партии.',
-      groups: [{ t: 'Монстры', s: 'Все', test: (a) => a.kind === 'mon' || a.kind === 'npc' || a.kind === 'loc' }] }
+    /* Бестиарий: D&D — классический, открыт всем; хоумбрю — монстры, NPC и места наших кампаний (по пометке мастера) */
+    { key: 'bestiary', icon: 'mon', title: 'Бестиарий', text: 'Монстры мира D&D со статблоками', view: 'mon', search: 'Имя монстра',
+      intro: 'Классический бестиарий D&D 5e: от крыс и гоблинов до тараски. Сортируй по показателю опасности, чтобы собрать бой по силам партии. Свои монстры наших кампаний — в «Бестиарии хоумбрю».',
+      more: { key: 'bestiary-hb', icon: 'mon', title: 'Бестиарий хоумбрю', text: 'Монстры, NPC и места наших кампаний' },
+      groups: [{ t: 'Монстры', s: 'Все', test: (a) => a.kind === 'mon' && !hb(a) }] },
+    { key: 'bestiary-hb', icon: 'mon', title: 'Бестиарий хоумбрю', parent: 'bestiary', hidden: true, view: 'mon', hb: true, search: 'Имя монстра или NPC',
+      intro: 'Монстры, NPC и места наших кампаний. Игроки видят только то, что мастер открыл.',
+      groups: [{ t: 'Монстры и NPC', s: 'Все', test: (a) => a.kind === 'mon' || a.kind === 'npc' || a.kind === 'loc' }] }
   ];
 
   /* Частые запросы за столом (главная, поиск, 404) */
@@ -93,5 +109,5 @@
   /* Названия видов во множественном числе — группы поиска */
   FR.codexPlural = { guide: 'Первые шаги', rule: 'Правила', action: 'Действия', cond: 'Состояния', dmg: 'Виды урона', prop: 'Свойства оружия', abil: 'Характеристики', skill: 'Навыки',
     race: 'Расы', subrace: 'Разновидности рас', class: 'Классы', sub: 'Подклассы', feature: 'Умения классов', option: 'Варианты умений', feat: 'Черты', bg: 'Предыстории',
-    spell: 'Заклинания', item: 'Предметы', lang: 'Языки', tool: 'Инструменты', deity: 'Боги', align: 'Мировоззрения', mon: 'Монстры', npc: 'NPC', loc: 'Места' };
+    spell: 'Заклинания', item: 'Предметы', lang: 'Языки', tool: 'Инструменты', deity: 'Боги', align: 'Мировоззрения', mon: 'Монстры', npc: 'NPC', loc: 'Места', hazard: 'Опасности' };
 })();

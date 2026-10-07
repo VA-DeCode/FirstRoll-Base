@@ -10,13 +10,14 @@
 (function () {
   var p = location.pathname, i = p.indexOf('/codex/');
   if (i >= 0 && !/\.[a-z0-9]+$/i.test(p)) location.replace(p.slice(0, i + 7) + '?p=' + encodeURIComponent(p.slice(i + 6)) + location.hash);
+  /* Корень сайта: на first-roll.ru — «/», на va-decode.github.io — подпапка репозитория «/FirstRoll-Base/» */
+  var R = window.FR_ROOT = /\.github\.io$/.test(location.hostname) && p.split('/')[1] ? '/' + p.split('/')[1] + '/' : '/';
+  document.write('<link rel="icon" href="' + R + 'shared/brand/fr-mark-light.svg" type="image/svg+xml">' +
+    '<link rel="stylesheet" href="' + R + 'shared/tokens.css"><link rel="stylesheet" href="' + R + 'shared/site.css">');
 })();
 </script>
 <script>try{var t=localStorage.getItem('kh-theme');t=t&&JSON.parse(t);if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
-<link rel="icon" href="/shared/brand/fr-mark-light.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@600;700&family=Alegreya:ital,wght@0,400;0,500;1,400&family=Alegreya+Sans:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="/shared/tokens.css">
-<link rel="stylesheet" href="/shared/site.css">
 <style>
 .nf{flex:1;width:100%;max-width:760px;margin:0 auto;padding:88px var(--pad-x) 48px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
 .nf h1{font-size:46px}.nf .lead{max-width:480px;font-size:19px}
@@ -31,10 +32,10 @@
   <p class="eyebrow">Ошибка 404</p>
   <h1 class="h-display">Такой страницы нет</h1>
   <p class="lead">По адресу <code id="path"></code> ничего не нашлось. Может, в ссылке опечатка или страница переехала.</p>
-  <a class="btn" href="/">На главную</a>
+  <a class="btn" id="home" href="/">На главную</a>
 </main>
 <footer id="site-foot"></footer>
-<script src="/shared/site.js"></script>
+<script>document.body.dataset.root = FR_ROOT; document.getElementById('home').href = FR_ROOT; document.write('<script src="' + FR_ROOT + 'shared/site.js"><\/script>');</script>
 <script>document.getElementById('path').textContent = location.pathname; FR.site.init();</script>
 </body>
 </html>

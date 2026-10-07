@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="shared/tokens.css">
 <link rel="stylesheet" href="shared/site.css">
 <style>
-/* Хаб first-roll.ru — макет Claude Design «Хаб», вариант b */
+/* Хаб сайта — макет Claude Design «Хаб», вариант b */
 .hub{flex:1;width:100%;max-width:calc(var(--content) + 2 * var(--pad-x));margin:0 auto;padding:72px var(--pad-x) 0;display:flex;flex-direction:column;gap:48px}
 .hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
 .hero h1{font-size:64px}
@@ -92,7 +92,7 @@
     </a>
     <a class="tile stol" data-part="stol">
       <svg viewBox="0 0 64 64" aria-hidden="true"><polygon points="32,2 58,17 58,47 32,62 6,47 6,17" fill="var(--accent)"/><polygon points="32,7 10,45 54,45" fill="none" stroke="var(--bg)" stroke-width="2.2" stroke-linejoin="round"/></svg>
-      <div class="tile-t"><div class="tile-p">stol.first-roll.ru</div><b>К столу</b><span>Живой лист на телефоне во время игры: хиты, ячейки, состояния.</span>
+      <div class="tile-t"><div class="tile-p">Стол мастера</div><b>К столу</b><span>Живой лист на телефоне во время игры: хиты, ячейки, состояния.</span>
         <div class="st" id="stol-st"><i></i><span>Проверяю Стол…</span></div></div>
     </a>
   </nav>
@@ -115,9 +115,13 @@
   S.init();
   // Публичная версия: без Стола и «Моего персонажа»
   if (S.public) {
-    document.querySelectorAll('.tile.stol, [data-full]').forEach((el) => el.remove());
-    document.getElementById('tiles').classList.add('is-3');
+    document.querySelectorAll('[data-full]').forEach((el) => el.remove());
     document.querySelectorAll('[data-public]').forEach((el) => { el.hidden = false; });
+  }
+  // «К столу» — только через сам Стол: у временного туннеля нет постоянного адреса
+  if (S.public || !S.onStol) {
+    document.querySelectorAll('.tile.stol').forEach((el) => el.remove());
+    document.getElementById('tiles').classList.add('is-3');
   }
   document.querySelectorAll('[data-part]').forEach((a) => { a.href = S.href(a.dataset.part); });
   document.querySelectorAll('img[data-brand]').forEach((i) => { i.src = S.brandSrc(i.dataset.brand); });

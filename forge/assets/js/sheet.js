@@ -83,7 +83,9 @@
     const feats = `<section class="sm-sec" id="s-feats"><h2>Умения и особенности</h2><div class="feat-list">${dv.features.map((f, i) => {
       const n = usesN(f); const key = (f.id || 'f') + ':' + i; const used = play.uses[key] || 0;
       const dots = n ? `<span class="uses">${forPdf ? circles(n) : Array.from({ length: n }, (_, j) => `<span role="checkbox" tabindex="0" aria-checked="${j < used}" aria-label="Отметить расход" class="dotb ${j < used ? 'used' : ''}" data-use="${esc(key)}" data-j="${j}"><i></i></span>`).join('')}<small>${esc(f.uses.replace(/^\d+\s*/, ''))}</small></span>` : f.uses ? `<span class="uses"><small>${esc(f.uses)}</small></span>` : '';
-      return `<details class="feat"${forPdf ? ' open' : ''}><summary><span class="nm"><b>${esc(f.name)}</b><small>${esc(fromText(f))}</small></span>${dots}<span class="chev" aria-hidden="true">▾</span></summary><p>${esc(f.desc)}</p>${f.picks && f.picks.length ? `<p class="pk">${f.picks.map((p) => esc(p.name)).join(', ')}</p>` : ''}</details>`;
+      // подсказка Кодекса по наведению (щелчок остаётся за <details>: раскрыть описание); в PDF — просто текст
+      const ref = !forPdf && f.id && window.FR && FR.codex && FR.codex.get('feature', f.id) ? 'feature:' + f.id : '';
+      return `<details class="feat"${forPdf ? ' open' : ''}><summary><span class="nm"><b${ref ? ` class="ref" data-ref="${ref}" data-ref-mode="hover"` : ''}>${esc(f.name)}</b><small>${esc(fromText(f))}</small></span>${dots}<span class="chev" aria-hidden="true">▾</span></summary><p>${esc(f.desc)}</p>${f.picks && f.picks.length ? `<p class="pk">${f.picks.map((p) => esc(p.name)).join(', ')}</p>` : ''}</details>`;
     }).join('')}</div></section>`;
     let spells = '';
     if (dv.casting.has) {
@@ -420,6 +422,7 @@
       return;
     }
     dv = R.derive(C);
+    if (window.FR && FR.config) FR.config.level = C.level;
     DND.state.remember(C, code, /(?:&|#)stol=1/.test(h));
     loadPlay();
     document.title = (C.name || 'Персонаж') + ' — лист персонажа';

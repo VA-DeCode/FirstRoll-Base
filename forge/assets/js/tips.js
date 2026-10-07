@@ -40,7 +40,10 @@
     if (!kind) return null;
     if (kind === 'option') id = id.replace('|', '-');
     const C = window.FR && FR.codex;
-    return C && C.get(kind, id) ? kind + ':' + id : null;
+    if (!C) return null;
+    if (C.get(kind, id)) return kind + ':' + id;
+    if (kind === 'item' && C.get('tool', id)) return 'tool:' + id;   // инструменты в лавке, наборах и инвентаре идут как предметы
+    return null;
   };
   function wire(root) {
     (root.querySelectorAll ? root : document).querySelectorAll('[data-tip]:not([data-tip-ok])').forEach((el) => {

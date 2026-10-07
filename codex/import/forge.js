@@ -29,7 +29,15 @@
   const SP = {}; (D.spells || []).forEach((x) => { SP[x.id] = x; });
   const spell = (id) => SP[id] ? `[[spell:${id}|${SP[id].name}]]` : id;
   const dmgName = (dt) => (D.damageNames || {})[dt] || dt;
-  const traitList = (arr) => (arr || []).map((t) => `- **${t.name}.** ${t.desc || ''}`).join('\n');
+  /* Умения классов и подклассов, черты рас и подрас: одна статья на id. Одинаковое умение у разных владельцев — одна общая статья
+     (Дополнительная атака, тёмное зрение, «Мастер школы»…), различия владельцев — блоками «## Владелец {#id-владельца}». Пишутся в конце. */
+  const FEAT = new Map();
+  const featRef = (f, kind, id, name) => {
+    let e = FEAT.get(f.id); if (!e) FEAT.set(f.id, e = []);
+    if (!e.some((x) => x.o.id === id)) e.push({ f, o: { kind, id, name } });
+    return f.id;
+  };
+  const traitList = (arr, kind, owner, ownerName) => (arr || []).map((t) => `- **[[feature:${featRef(t, kind, owner, ownerName)}|${t.name}]].** ${t.desc || ''}`).join('\n');
   const asi = (o) => o ? Object.entries(o).map(([a, n]) => (n > 0 ? '+' : '−') + Math.abs(n) + ' ' + abilShort(a)).join(', ') : '';
 
   /* Характеристики и навыки */
@@ -60,23 +68,16 @@
     const dv = [].concat(r.traits || []).map((t) => t.grants && t.grants.darkvision).filter(Boolean)[0];
     put({ kind: 'race', id: r.id, name: r.name, en: r.en, src: src(r.src), size: r.size, speed: r.speed,
       summary: r.desc, chips: [r.size, r.speed + ' фт', dv ? 'тёмное зрение ' + dv : '', asi(r.asi), r.exotic ? 'экзотика' : ''].filter(Boolean),
-      body: `*${r.tagline}.* Размер: ${r.size}, скорость ${r.speed} фт.` + (r.traits && r.traits.length ? `\n\n## Черты {#traits}\n${traitList(r.traits)}` : '') +
+      body: `*${r.tagline}.* Размер: ${r.size}, скорость ${r.speed} фт.` + (r.traits && r.traits.length ? `\n\n## Черты {#traits}\n${traitList(r.traits, 'race', r.id, r.name)}` : '') +
         (r.subraces && r.subraces.length ? `\n\n## Разновидности {#subraces}\n${r.subraces.map((s) => `- [[subrace:${s.id}|${s.name}]]${s.desc ? ' — ' + s.desc : ''}`).join('\n')}` : ''),
       tags: ['расы'] });
     (r.subraces || []).forEach((s) => put({ kind: 'subrace', id: s.id, name: s.name, en: s.en, src: src(s.src || r.src), race: r.id,
       summary: s.desc || `Разновидность: [[race:${r.id}|${r.name}]].`, chips: [asi(s.asi)].filter(Boolean),
-      body: `Раса: [[race:${r.id}|${r.name}]].` + (s.traits && s.traits.length ? `\n\n## Черты {#traits}\n${traitList(s.traits)}` : ''), tags: ['расы'] }));
+      body: `Раса: [[race:${r.id}|${r.name}]].` + (s.traits && s.traits.length ? `\n\n## Черты {#traits}\n${traitList(s.traits, 'subrace', s.id, s.name)}` : ''), tags: ['расы'] }));
   });
 
   /* Классы, подклассы, умения */
-  const featOwner = new Map();
-  const addFeature = (f, owner, ownerKind, ownerName) => {
-    let id = f.id; if (featOwner.has(id) && featOwner.get(id) !== owner) id = owner + '-' + f.id;
-    featOwner.set(id, owner);
-    put({ kind: 'feature', id, name: f.name, en: f.en, src: f.tce ? 'Таша' : undefined, level: f.level,
-      summary: f.desc, body: `Откуда: [[${ownerKind}:${owner}|${ownerName}]], ${f.level}-й уровень.`, tags: ['умения'] });
-    return id;
-  };
+  const addFeature = (f, owner, ownerKind, ownerName) => featRef(f, ownerKind, owner, ownerName);
   (D.classes || []).forEach((c) => {
     const feats = (c.features || []).map((f) => [f, addFeature(f, c.id, 'class', c.name)]);
     const subs = (D.subclasses || []).filter((s) => s.cls === c.id);
@@ -100,6 +101,19 @@
         tags: ['подклассы'] });
     });
   });
+
+  /* Статьи умений и черт (см. FEAT выше) */
+  const most = (arr) => { const n = new Map(); arr.forEach((x) => n.set(x, (n.get(x) || 0) + 1)); return [...n].sort((a, b) => b[1] - a[1])[0][0]; };
+  for (const [id, own] of FEAT) {
+    const f0 = own[0].f, name = f0.common || most(own.map((x) => x.f.name)), desc = most(own.map((x) => x.f.desc || ''));
+    const race = own[0].o.kind === 'race' || own[0].o.kind === 'subrace';
+    const from = own.map(({ f, o }) => `[[${o.kind}:${o.id}|${o.name}]]` + (f.name !== name ? ` («${f.name}»)` : '') + (f.level ? `, ${f.level}-й уровень` : '')).join('; ');
+    const blocks = own.length > 1 ? own.filter(({ f }) => (f.desc || '') !== desc)
+      .map(({ f, o }) => `## ${o.name}${f.name !== name ? ': ' + f.name : ''} {#${o.id}}\n${f.desc || ''}`).join('\n\n') : '';
+    put({ kind: 'feature', id, name, en: f0.en, src: f0.tce ? 'Таша' : undefined, level: f0.level, summary: desc,
+      owners: own.map(({ o }) => o.kind + ':' + o.id),
+      body: `Откуда: ${from}.` + (blocks ? '\n\n' + blocks : ''), tags: [race ? 'расы' : 'умения'] });
+  }
 
   /* Предыстории и черты */
   (D.backgrounds || []).forEach((b) => put({ kind: 'bg', id: b.id, name: b.name, en: b.en, src: src(b.src), summary: b.desc,
@@ -129,6 +143,6 @@
   const LT = { standard: 'обычный', exotic: 'экзотический', rare: 'редкий', secret: 'тайный' };
   (D.languages || []).forEach((l) => put({ kind: 'lang', id: l.id, name: l.name, src: 'КИ', summary: `${LT[l.type] || ''} язык. Говорят: ${l.speakers}. Письменность: ${l.script}.`.replace(/^./, (c) => c.toUpperCase()), tags: ['языки'] }));
   (D.tools || []).forEach((t) => put({ kind: 'tool', id: t.id, name: t.name, src: 'КИ', summary: `${(D.toolCats || {})[t.cat] || 'инструменты'}. Владение позволяет добавлять [[rule:proficiency|бонус мастерства]] к проверкам с ними.${t.cost ? ` Цена: ${t.cost} зм.` : ''}`.replace(/^./, (c) => c.toUpperCase()), tags: ['инструменты'] }));
-  (D.deities || []).forEach((d) => put({ kind: 'deity', id: d.id, name: d.name, src: 'ПМ', summary: `${d.title[0].toUpperCase() + d.title.slice(1)}. Домены: ${d.domains.join(', ')}. Мировоззрение: ${d.al}.`, body: `${d.title[0].toUpperCase() + d.title.slice(1)}.\n\n- Домены: ${d.domains.join(', ')}\n- Мировоззрение: ${d.al}\n- Символ: ${d.symbol}`, tags: ['боги'] }));
+  (D.deities || []).forEach((d) => put({ kind: 'deity', id: d.id, name: d.name, src: src('SCAG'), summary: `${d.title[0].toUpperCase() + d.title.slice(1)}. Домены: ${d.domains.join(', ')}. Мировоззрение: ${d.al}.`, body: `${d.title[0].toUpperCase() + d.title.slice(1)}.\n\n- Домены: ${d.domains.join(', ')}\n- Мировоззрение: ${d.al}\n- Символ: ${d.symbol}`, tags: ['боги'] }));
   (D.alignments || []).forEach((a) => put({ kind: 'align', id: a.id, name: a.name, src: 'КИ', chips: [a.short], summary: a.desc, tags: ['мировоззрение'] }));
 })();

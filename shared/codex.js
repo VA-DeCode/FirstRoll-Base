@@ -8,18 +8,27 @@
 
   FR.config = Object.assign({
     /* Адрес статьи справочника. {kind} и {id} подставляются, блок добавляется как #якорь.
-       Прототип: 'codex.html?{kind}/{id}'. Будущий сайт: '/codex/{kind}/{id}'. */
-    codexUrl: 'codex.html?{kind}/{id}',
-    /* Свой адрес для отдельных видов: { guide: '../start/#{id}' } */
+       null — по умолчанию: от <body data-root> страницы (с диска codex/index.html?{kind}/{id}, на сайте codex/{kind}/{id}).
+       Свой шаблон задают Кодекс (codex/app.js) и страницы Стола (абсолютные /fr/codex/…). */
+    codexUrl: null,
+    /* Свой адрес для отдельных видов: { guide: '../start/#{id}' }. guide по умолчанию — «Первые шаги» от data-root */
     kindUrl: {}
   }, FR.config || {});
+  const defUrl = (kind) => {
+    const body = typeof document !== 'undefined' && document.body;
+    const root = (body && body.dataset.root) || './';
+    const file = typeof location !== 'undefined' && location.protocol === 'file:';
+    return kind === 'guide' ? root + 'start/' + (file ? 'index.html' : '') + '#{id}' : root + 'codex/' + (file ? 'index.html?' : '') + '{kind}/{id}';
+  };
 
   /* Виды атомов = префиксы ссылок. Подпись — для шапки карточки. */
   const KINDS = {
     rule: 'Правило', action: 'Действие', cond: 'Состояние', dmg: 'Вид урона', prop: 'Свойство оружия',
     abil: 'Характеристика', skill: 'Навык', race: 'Раса', subrace: 'Разновидность расы', class: 'Класс', sub: 'Подкласс',
     feature: 'Умение', option: 'Вариант умения', feat: 'Черта', bg: 'Предыстория', spell: 'Заклинание', item: 'Предмет',
-    guide: 'Первые шаги', lang: 'Язык', tool: 'Инструменты', deity: 'Божество', align: 'Мировоззрение', mon: 'Монстр', npc: 'NPC', loc: 'Место', calc: 'Откуда число'
+    guide: 'Первые шаги', lang: 'Язык', tool: 'Инструменты', deity: 'Божество', align: 'Мировоззрение', mon: 'Монстр', npc: 'NPC', loc: 'Место',
+    hazard: 'Опасность',   // ловушки, болезни, опасности местности (поле type: 'trap' | 'disease' | 'environment')
+    calc: 'Откуда число'
   };
   /* В тексте эти виды по умолчанию пишутся со строчной: [[cond:poisoned]] → «отравленный». */
   const LOWER = { rule: 1, action: 0, cond: 1, dmg: 1, prop: 1 };
@@ -94,7 +103,8 @@
 
   C.url = function (ref) {
     const p = typeof ref === 'string' ? C.parse(ref) : ref; if (!p) return '#';
-    const tpl = (FR.config.kindUrl && FR.config.kindUrl[p.kind]) || FR.config.codexUrl;   // например, guide → «Первые шаги»
+    const own = FR.config.kindUrl && FR.config.kindUrl[p.kind];   // например, guide → «Первые шаги»
+    const tpl = own || (p.kind === 'guide' || !FR.config.codexUrl ? defUrl(p.kind) : FR.config.codexUrl);
     return tpl.replace('{kind}', p.kind).replace('{id}', encodeURIComponent(p.id)) + (p.block ? '#' + p.block : '');
   };
 
@@ -115,7 +125,9 @@
       return `<span class="ref is-missing" title="Нет статьи: ${esc(ref)}">${label ? label : esc(id)}</span>`;
     }
     const I = FR.icons, ico = I && I.inline[kind] ? I.forAtom(r.atom) : '';
-    return `<a class="ref ref-${kind}" href="${esc(C.url(ref))}" data-ref="${esc(ref)}">${ico}${label ? label : esc(C.word(r))}</a>`;
+    // vis:'hidden' — атом только этой страницы (предмет инвентаря, разбор числа): подсказка есть, статьи в справочнике нет
+    const href = r.atom.vis === 'hidden' ? 'role="button" tabindex="0"' : `href="${esc(C.url(ref))}"`;
+    return `<a class="ref ref-${kind}" ${href} data-ref="${esc(ref)}">${ico}${label ? label : esc(C.word(r))}</a>`;
   };
 
   /* Строка: экранирование, ссылки, **жирный**, *курсив* */

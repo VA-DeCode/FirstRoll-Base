@@ -32,8 +32,23 @@
 
   /* Общие необязательные поля атома: chips — строки-чипы (с разметкой), levels — таблица [[ключ, текст]] */
   const costChip = (a) => a.cost && FR.icons ? `<span class="chip chip-cost cost-${esc(a.cost)}">${FR.icons.svg('cost-' + a.cost)}${esc(FR.icons.COST[a.cost] || a.cost)}</span>` : '';
-  const extras = (a) => (a.cost ? `<div class="tip-chips">${costChip(a)}</div>` : '') + (a.chips && a.chips.length ? chips(a.chips.map((c) => C.inline(c))) : '') +
-    (a.levels ? `<div class="tip-table">${a.levels.map((r) => `<div class="r"><span>${esc(r[0])}</span><span>${C.inline(r[1])}</span></div>`).join('')}</div>` : '');
+  /* Таблица уровней класса: всего 20 строк — в подсказке окно из 5 вокруг уровня персонажа (FR.config.level: Кузница, лист Стола,
+     «Мой персонаж»), текущий уровень подсвечен; без персонажа — уровни 1–5. Полная таблица — в статье. */
+  const levelRows = (a) => {
+    const L = a.levels, n = 5;
+    if (a.kind !== 'class' || L.length <= n) return { rows: L, cur: null };
+    const lv = +(FR.config && FR.config.level) || 0;
+    let i = lv ? L.findIndex((r) => +r[0] === lv) : -1;
+    const from = i < 0 ? 0 : Math.max(0, Math.min(L.length - n, i - 2));
+    return { rows: L.slice(from, from + n), cur: i < 0 ? null : String(lv), note: `Уровни ${L[from][0]}–${L[Math.min(L.length, from + n) - 1][0]} из ${L[L.length - 1][0]}` };
+  };
+  const levels = (a) => {
+    if (!a.levels) return '';
+    const { rows, cur, note } = levelRows(a);
+    return `<div class="tip-table">${rows.map((r) => `<div class="r${cur && r[0] === cur ? ' is-cur' : ''}"><span>${esc(r[0])}</span><span>${C.inline(r[1])}</span></div>`).join('')}</div>` +
+      (note ? `<div class="tip-levels-note">${esc(note)} — вся таблица в статье</div>` : '');
+  };
+  const extras = (a) => (a.cost ? `<div class="tip-chips">${costChip(a)}</div>` : '') + (a.chips && a.chips.length ? chips(a.chips.map((c) => C.inline(c))) : '') + levels(a);
   T.renderers.default = (a) => head(esc(C.kinds[a.kind] || a.kind), esc(a.name), a.en, a) + `<div class="fr-md">${C.md(a.summary)}</div>` + extras(a) + see(a) + dm(a);
   T.renderers.cond = (a) => T.renderers.default(a).replace(esc(C.kinds.cond), 'Состояние');
 
@@ -85,7 +100,8 @@
           `<div class="tip-see">Вся статья: ${C.link(a.kind, a.id)}</div>` };
     }
     const fn = T.renderers[a.kind] || T.renderers.default;
-    const url = a.kind === 'calc' ? (a.see && a.see[0] ? C.url(a.see[0]) : null) : C.url(ref);
+    // vis:'hidden' — атомы, которые живут только на этой странице (предметы инвентаря, неопознанные): статьи в справочнике у них нет
+    const url = a.kind === 'calc' ? (a.see && a.see[0] ? C.url(a.see[0]) : null) : a.vis === 'hidden' ? null : C.url(ref);
     let html = fn(a);
     // v2: статья только для мастера — метка «· только мастеру» киноварью
     if (a.vis === 'dm') html = html.replace(/(<div class="tip-kind">[\s\S]*?)(<\/div>)/, '$1 · только мастеру$2');

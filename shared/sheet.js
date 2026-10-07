@@ -8,7 +8,10 @@
   const FR = window.FR = window.FR || {};
   const C = FR.codex, esc = C.esc;
   const sg = (n) => (n >= 0 ? '+' : '−') + Math.abs(n);
-  const link = (kind, id, text) => C.get(kind, id) ? C.link(kind, id, null, esc(text)) : esc(text);
+  const link = (kind, id, text) => {
+    if (kind === 'item' && !C.get('item', id) && C.get('tool', id)) kind = 'tool';   // инструменты в инвентаре — статьи вида tool
+    return C.get(kind, id) ? C.link(kind, id, null, esc(text)) : esc(text);
+  };
   const ico = (n) => (FR.icons ? FR.icons.svg(n) : '');
   let pre = 'sh';
   /* число с разбором: calc-атом + кнопка-источник подсказки */

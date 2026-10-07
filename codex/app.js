@@ -17,6 +17,10 @@
   FR.config.dm = !S.public && (!!store.get('fr-codex-dm', false) || (S.onStol && /^(localhost|127\.|\[::1\])/.test(location.hostname)));   // на ноутбуке мастера — сразу; в публичной версии мастерского нет
   if (S.public) SECS.forEach((s) => { if (s.dm) s.hidden = true; });   // публичная версия: разделов мастера (Бестиарий) нет совсем
   const visible = (a) => a && a.kind !== 'calc' && a.vis !== 'hidden' && (a.vis !== 'dm' || FR.config.dm);
+  /* Хоумбрю (id «hb:…», codex/data/homebrew): скрыто, пока мастер не откроет. Открывать и переносить предметы кампании
+     можно только на ноутбуке мастера через Стол (API /api/dm/codex/homebrew). */
+  const isHb = (a) => /^hb:/.test(a.id);
+  const canEdit = S.onStol && !S.public && /^(localhost|127\.|\[::1\])/.test(location.hostname);
 
   /* ───── адреса ───── */
   let BASE = '';
@@ -103,7 +107,7 @@
     return C.kinds[a.kind] || a.kind;
   };
   const badges = (a) => (a.src ? `<span class="badge">${esc(a.src)}${a.pg ? ' · с. ' + esc(String(a.pg).split(/[,–-]/)[0]) : ''}</span>` : '') +
-    (a.vis === 'dm' ? `<span class="badge dm">${lock()}Только мастер</span>` : '');
+    (a.vis === 'dm' ? `<span class="badge dm">${lock()}Только мастер</span>` : '') + (isHb(a) ? `<span class="badge">Хоумбрю${a.camp ? ' · ' + esc(a.camp) : ''}</span>` : '');
 
   /* ───── главная ───── */
   function home() {
@@ -156,7 +160,7 @@
       </section>
       ${locked ? '' : `<section class="cx-tools"><label class="cx-filter">${S.svg.search(18)}<input type="search" placeholder="${esc(sec.search || 'Искать в разделе')}" value="${esc(st.q)}" aria-label="Фильтр раздела"></label><div class="cx-chips" id="chips"></div></section>`}
       <div id="list"></div>
-      ${sec.more ? `<a class="cx-more" href="${esc(U.sec(sec.more.key))}">${ico('spell')}<span><b>${esc(sec.more.title)}</b><small>${esc(sec.more.text)} · ${esc(arts(secCount(SECS.find((s) => s.key === sec.more.key))))}</small></span><i>→</i></a>` : ''}
+      ${sec.more ? `<a class="cx-more" href="${esc(U.sec(sec.more.key))}">${ico(sec.more.icon || 'spell')}<span><b>${esc(sec.more.title)}</b><small>${esc(sec.more.text)} · ${esc(arts(secCount(SECS.find((s) => s.key === sec.more.key))))}</small></span><i>→</i></a>` : ''}
       <section class="cx-others"><p class="eyebrow">Другие разделы</p><div class="chips">${SECS.filter((s) => s.key !== sec.key && !s.hidden && !(sec.parent === s.key)).map(secChip).join('')}</div></section>
     </div>`;
     const pr = app.querySelector('[data-print]'); if (pr) pr.onclick = () => { st.f = 'all'; st.q = ''; draw(); setTimeout(() => print(), 50); };
@@ -188,7 +192,8 @@
       }
       if (sec.view === 'spell') html = spells(sec, st, hit, (c) => { chips = c; });
       if (sec.view === 'mon') html = mons(sec, st, hit, (c) => { chips = c; });
-      if (!html.replace(/<[^>]+>/g, '').trim()) html += `<div class="empty">${q ? `По запросу «${esc(st.q)}» в разделе ничего нет.` : 'В этом разделе пока пусто.'}</div>`;
+      if (sec.hb && FR.config.dm && sec.view !== 'mon') html = dmNote('Ты видишь всё хоумбрю; игроки — только открытые статьи. Открыть статью — кнопка «Открыть игрокам» в ней (на ноутбуке, через Стол) или <code>node tools/homebrew.js open вид:hb:id</code>.') + html;
+      if (!html.replace(/<[^>]+>/g, '').trim()) html += `<div class="empty">${q ? `По запросу «${esc(st.q)}» в разделе ничего нет.` : sec.hb ? 'Мастер пока ничего не открыл.' : 'В этом разделе пока пусто.'}</div>`;
       if (chipsEl) chipsEl.innerHTML = chips;
       list.innerHTML = html;
       app.querySelectorAll('[data-f]').forEach((b) => { b.onclick = () => { st.f = b.dataset.f; draw(); }; });
@@ -229,10 +234,10 @@
     const chip = (label, key) => `<button class="chip${st.f === key ? ' on' : ''}" type="button" data-f="${key}">${st.f === key ? '<span>✓</span>' : ''}${esc(label)}</button>`;
     setChips(chip('Все', 'all') + chip('ПО 0–½', 'a') + chip('ПО 1–4', 'b') + chip('ПО 5–10', 'c') + chip('ПО 11+', 'd'));
     const items = all.filter(hit).filter((a) => inB(cr(a))).sort((x, y) => cr(x) - cr(y) || x.name.localeCompare(y.name, 'ru'));
-    return dmNote('Раздел виден только тебе — после входа мастера на Столе. Игроки видят монстра, только когда ты его покажешь.') +
+    return (sec.hb && FR.config.dm ? dmNote('Ты видишь всё хоумбрю; игроки — только открытое. Открыть монстра — кнопка «Открыть игрокам» в его статье (на ноутбуке, через Стол) или <code>node tools/homebrew.js open mon:hb:id</code>.') : '') +
       (items.length ? `<div class="cx-table cx-mons"><div class="cx-tr cx-th"><span>Монстр</span><span class="c">ПО</span><span>Тип</span><span>Размер</span><span class="c">КД</span><span class="c">Хиты</span></div>
       ${items.map((a) => `<a class="cx-tr" href="${esc(U.art(a))}"><span class="nm"><b>${esc(a.name)}</b><em>${esc([a.size, a.type].filter(Boolean).join(' '))}</em></span><span class="c"><i class="cx-cr">${esc(a.cr == null ? '—' : a.cr)}</i></span><span>${esc(a.type || '')}</span><span class="mu">${esc(a.size || '')}</span><span class="c b">${esc(a.ac || '')}</span><span class="c b">${esc(a.hp || '')}</span></a>`).join('')}</div>`
-        : `<div class="empty">Монстров в Кодексе пока нет. Бестиарий SRD 5.1 — отдельная задача наполнения.</div>`);
+        : `<div class="empty">${sec.hb ? (FR.config.dm ? 'Своих монстров пока нет. Их пишут в codex/data/homebrew/bestiary.js (tools/homebrew.js add).' : 'Мастер пока ничего не открыл.') : 'Монстров в Кодексе пока нет: бестиарий D&D наполняется.'}</div>`);
   }
 
   /* ───── статья ───── */
@@ -306,7 +311,9 @@
         ${a.summary ? `<div class="cx-lead">${C.inline(a.summary)}</div>` : ''}
         <details class="cx-toc-m" hidden><summary><span></span><i aria-hidden="true">▾</i></summary><nav></nav></details>
         ${facts(a)}${chipsOf(a)}
+        ${hbBar(a)}
         <div class="fr-md cx-body">${C.md(dedupe(a))}${extraBody(a)}</div>
+        ${/^SRD/.test(a.src || '') ? '<p class="cx-srd">Текст по System Reference Document 5.1 © Wizards of the Coast LLC, лицензия <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener">CC BY 4.0</a>.</p>' : ''}
         ${see.length || back.length ? `<div class="cx-after">
           ${see.length ? `<div><p class="eyebrow">См. также</p><div class="chips">${see.map((r) => `<a class="chip has-ico${isCond(r.atom) ? ' is-cond' : ''}" href="${esc(C.url(r.ref.kind + ':' + r.ref.id + (r.block ? '#' + r.block.id : '')))}">${aIco(r.atom)}${esc(r.block ? r.atom.name + ' › ' + r.block.title : r.atom.name)}</a>`).join('')}</div></div>` : ''}
           ${back.length ? `<div class="cx-back"><b>Где упоминается:</b> ${back.slice(0, 30).map((x) => C.link(x.kind, x.id, null, esc(x.name))).join(' · ')}${back.length > 30 ? ` · и ещё ${back.length - 30}` : ''}</div>` : ''}
@@ -316,6 +323,32 @@
       <aside class="cx-aside"><nav class="cx-toc" hidden><p>В этой статье</p></nav><button class="btn cx-copy" type="button" data-copy>${ico('link')}Скопировать ссылку</button></aside>
     </div>`;
     decorate(a);
+  }
+
+  /* Хоумбрю: кому видна статья; мастеру на ноутбуке — «Открыть игрокам / Скрыть» или «В Кодекс» (предмет кампании со Ширмы) */
+  function hbBar(a) {
+    if (!isHb(a) || !FR.config.dm) return '';
+    const shown = a.vis === 'public';
+    const t = a.camp ? `<b>Предмет кампании «${esc(a.camp)}».</b> Он живёт в папке кампании, игроки знают его только по своему инвентарю. «В Кодекс» — перенести в хоумбрю Кодекса (сначала скрытым).`
+      : shown ? '<b>Хоумбрю · открыто игрокам.</b> Статью видят игроки на Столе; на публичный сайт она уйдёт со следующим publish.bat.'
+        : '<b>Хоумбрю · видит только мастер.</b> Игроки увидят статью, когда ты её откроешь.';
+    const b = !canEdit ? '' : a.camp ? '<button class="btn" type="button" data-hb="copy">В Кодекс</button>'
+      : `<button class="btn" type="button" data-hb="${shown ? 'dm' : 'public'}">${shown ? 'Скрыть от игроков' : 'Открыть игрокам'}</button>`;
+    return `<div class="cx-dm cx-hb">${lock()}<span>${t}</span>${b}</div>`;
+  }
+  function hbWire(a) {
+    const b = app.querySelector('[data-hb]'); if (!b) return;
+    b.onclick = async () => {
+      b.disabled = true;
+      const op = b.dataset.hb === 'copy' ? { op: 'copy', id: a.id } : { op: 'vis', ref: a.kind + ':' + a.id, vis: b.dataset.hb };
+      try {
+        const r = await fetch('/api/dm/codex/homebrew', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(op) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || 'Стол ответил ' + r.status);
+        S.toast(op.op === 'copy' ? 'Перенесено в хоумбрю Кодекса' : op.vis === 'public' ? 'Открыто игрокам' : 'Скрыто от игроков');
+        setTimeout(() => location.reload(), 600);
+      } catch (e) { S.toast('Не получилось: ' + e.message); b.disabled = false; }
+    };
   }
 
   /* Оформление тела статьи: «Не путать» — врезка, блоки с «Ссылка на блок», оглавление, подсветка блока из адреса */
@@ -349,6 +382,7 @@
       }
     }
     app.querySelector('[data-copy]').onclick = () => S.copy(U.abs(U.art(a)));
+    hbWire(a);
     if (location.hash) jump(decodeURIComponent(location.hash.slice(1)), false);
   }
   function jump(id, push) {

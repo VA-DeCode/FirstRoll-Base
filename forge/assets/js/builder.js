@@ -649,6 +649,7 @@
   }
   function render() {
     dv = R.derive(C);
+    if (window.FR && FR.config) FR.config.level = C.level;   // подсказка класса показывает уровни вокруг текущего
     if (step === 'spells' && !hasSpellStep()) step = 'equipment';
     if (!STEPS.some((s) => s.id === step)) step = 'basics';
     renderStepper();

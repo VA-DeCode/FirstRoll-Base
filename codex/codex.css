@@ -120,6 +120,8 @@ a.cx-tr:hover{background:var(--soft);color:var(--fg)}
 .cx-dm>.ico{color:var(--accent);width:20px;height:20px;margin-top:2px}
 .cx-dm b{font-family:var(--f-ui);color:var(--accent)}
 #list>.cx-dm{margin-bottom:-32px}
+.cx-hb{align-items:center;margin:0 0 18px}.cx-hb>span{flex:1}.cx-hb .btn{flex:none}
+.cx-srd{margin-top:28px;font-size:14px;color:var(--muted)}
 .cx-more{display:flex;align-items:center;gap:16px;padding:18px 22px;border:1px solid var(--gold);border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow-card);color:var(--fg)}
 .cx-more:hover{color:var(--fg);border-color:var(--accent)}
 .cx-more>.ico{width:28px;height:28px;color:var(--gold)}

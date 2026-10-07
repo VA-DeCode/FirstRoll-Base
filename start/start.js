@@ -3,11 +3,10 @@
    Прогресс чтения хранится в этом браузере (localStorage 'fr-start-read'). Термины в тексте открывают подсказки Кодекса. */
 (function () {
   const FR = window.FR, C = FR.codex, S = FR.site, esc = C.esc;
-  const D = document, app = D.getElementById('app'), file = location.protocol === 'file:';
+  const D = document, app = D.getElementById('app');
   const store = { get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-  FR.config.codexUrl = file ? '../codex/index.html?{kind}/{id}' : '../codex/{kind}/{id}';
-  FR.config.kindUrl = Object.assign(FR.config.kindUrl || {}, { guide: '#{id}' });
+  FR.config.kindUrl = Object.assign(FR.config.kindUrl || {}, { guide: '#{id}' });   // главы — на этой же странице; статьи Кодекса — адрес по умолчанию от data-root
 
   const CH = C.byKind('guide').filter((a) => a.vis !== 'hidden').sort((x, y) => (x.n || 0) - (y.n || 0));
   const read = () => store.get('fr-start-read', []);

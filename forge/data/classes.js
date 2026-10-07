@@ -317,7 +317,7 @@ DND.data = DND.data || {};
   const F = (id, level, name, desc, extra) => Object.assign({ id, level, name, desc }, extra || {});
   const CD = (id, name, desc) => F(id, 3, 'Божественный канал: ' + name, desc);
   const CDc = (id, name, desc) => F(id, 2, 'Божественный канал: ' + name, desc);
-  const SAVANT = (school) => F('savant', 2, 'Мастер ' + school, 'Копирование заклинаний этой школы в книгу стоит вдвое дешевле и быстрее.');
+  const SAVANT = (school) => F('savant', 2, 'Мастер ' + school, 'Копирование заклинаний этой школы в книгу стоит вдвое дешевле и быстрее.', { common: 'Мастер школы', en: 'Savant' });   // одна общая статья Кодекса на все школы
 
   DND.data.subclasses = [
     /* ── Варвар ── */
