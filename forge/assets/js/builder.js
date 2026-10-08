@@ -571,6 +571,7 @@
               <button type="button" data-act="print"><span class="ic">⎙</span>Печать</button>
               <button type="button" data-act="copy-code"><span class="ic">⧉</span>Скопировать код</button>
               <button type="button" data-act="copy-link"><span class="ic">↗</span>Скопировать ссылку</button>
+              <button type="button" data-act="md"><span class="ic">≡</span>Скачать .md</button>
               <a href="load.html"><span class="ic">⇅</span>Загрузить другой код</a>
             </div>
           </section>
@@ -785,6 +786,7 @@
       case 'pdf': getCode().then((code) => { location.href = 'sheet.html#c=' + code + '&pdf=' + el.dataset.v; }); return;
       case 'print': getCode().then((code) => { location.href = 'sheet.html#c=' + code + '&print=1'; }); return;
       case 'copy-code': getCode().then(async (code) => DND.toast((await DND.copy(code)) ? '✓ Код скопирован' : 'Не удалось скопировать — выдели вручную')); return;
+      case 'md': getCode().then((code) => DND.toast('✓ Скачан ' + DND.downloadMd(pruned(), code))).catch(() => DND.toast('Не удалось собрать файл')); return;
       case 'copy-link': getCode().then(async (code) => DND.toast((await DND.copy(DND.codec.link(code))) ? '✓ Ссылка скопирована' : 'Не удалось скопировать')); return;
       case 'reset': if (!ui.resetArm) { ui.resetArm = 1; soft(); setTimeout(() => { ui.resetArm = 0; }, 4000); return; } ui.resetArm = 0; C = DND.state.blank(); step = 'basics'; U.ls.set('kh-step', step); break;
       default: return;

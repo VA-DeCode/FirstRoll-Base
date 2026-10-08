@@ -490,6 +490,7 @@ span.chip{cursor:default}
 .act-grid button,.act-grid a{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;border-radius:10px;border:1px solid var(--rule);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;font:500 15px/1.2 var(--f-ui);text-decoration:none}
 .act-grid button:hover,.act-grid a:hover{border-color:var(--gold);color:var(--fg)}
 .act-grid .ic{flex:none;width:20px;text-align:center;color:var(--gold)}
+.act-grid > :last-child:nth-child(odd){grid-column:1/-1}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
 .code-box{font:12.5px/1.45 var(--f-mono);word-break:break-all;background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;max-height:160px;min-height:60px;overflow:auto;user-select:all;color:var(--fg)}
 

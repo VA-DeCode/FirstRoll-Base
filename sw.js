@@ -2,12 +2,12 @@
    Страницы — сначала сеть, без сети — сохранённая копия. Остальное (скрипты, стили, шрифты, статьи) — из кэша,
    с тихим обновлением в фоне. Любой адрес /codex/… отдаёт приложение Кодекса (оно само читает адрес).
    Меняя список ядра, увеличь VER. */
-const VER = 'fr-v4';
+const VER = 'fr-v5';
 const ROOT = new URL('./', self.location).pathname;
 const CORE = ['', 'index.html', 'start/', 'codex/', 'shared/tokens.css', 'shared/site.css', 'shared/tips.css', 'shared/site.js', 'shared/icons.js',
   'shared/codex.js', 'shared/tips.js', 'shared/sheet.css', 'shared/sheet.js', 'start/start.css', 'codex/app.js', 'codex/codex.css', 'codex/sections.js', 'codex/load.js', 'start/start.js', 'manifest.webmanifest',
   'forge/', 'forge/sheet.html', 'forge/load.html', 'forge/assets/css/app.css', 'forge/assets/css/sheet.css', 'forge/assets/js/core.js', 'forge/assets/js/rules.js',
-  'forge/assets/js/tips.js', 'forge/assets/js/builder.js', 'forge/assets/js/sheet.js', 'forge/assets/js/sheetdata.js', 'forge/assets/js/forge-site.js', 'shared/forge-bridge.js'].concat(
+  'forge/assets/js/tips.js', 'forge/assets/js/builder.js', 'forge/assets/js/sheet.js', 'forge/assets/js/sheetdata.js', 'forge/assets/js/forge-site.js', 'forge/assets/js/export-md.js', 'shared/forge-bridge.js'].concat(
   ['config', 'common', 'equipment', 'spells', 'races', 'options', 'feats', 'backgrounds', 'classes'].map((n) => 'forge/data/' + n + '.js'));
 
 self.addEventListener('install', (e) => {
